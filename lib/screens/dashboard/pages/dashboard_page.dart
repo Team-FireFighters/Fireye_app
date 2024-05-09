@@ -1,14 +1,20 @@
+// ignore_for_file: avoid_print
+
 import 'dart:ui';
 
+import 'package:fireye/global/constants/constants.dart';
 import 'package:fireye/global/helpers/app_colors.dart';
 import 'package:fireye/providers/global_provider.dart';
 import 'package:fireye/screens/dashboard/widgets/navbar_buttons.dart';
 import 'package:fireye/screens/location/pages/location_page.dart';
 import 'package:fireye/screens/upload/pages/upload_page.dart';
+import 'package:fireye/services/messaging_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:gap/gap.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -18,44 +24,7 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     EdgeInsets devicePadding = MediaQuery.of(context).padding;
-    void showAlertSentMessage(){
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-        backgroundColor: Colors.transparent,
-        closeIconColor: Colors.transparent,
-        elevation: 0,
-        behavior: SnackBarBehavior.floating, 
-        dismissDirection: DismissDirection.horizontal,
-        content: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12.5),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
-            borderRadius: const BorderRadius.all(Radius.circular(40))
-          ),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                CupertinoIcons.exclamationmark_triangle_fill,
-                color: Colors.amber
-              ),
-              Gap(7.5),
-              Text(
-                'Local emergency services alerted',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600
-                ),
-              ),
-            ],
-          ),
-        ),
-        )
-      );
-    }
-    void showEmergencyDialog(){
+    void showEmergencyDialog(bool messagingEnabled){
       showCupertinoModalPopup(
         context: context,
         builder: (context) =>  CupertinoAlertDialog(
@@ -97,7 +66,37 @@ class DashboardPage extends StatelessWidget {
               ),
             ),
             CupertinoDialogAction(
-              onPressed: () => showAlertSentMessage(),
+              onPressed: () async{
+                try{
+                  var enabled =  await Geolocator.isLocationServiceEnabled();
+                  print(enabled);
+                  if(await Geolocator.isLocationServiceEnabled()){
+                    print('location services enabled');
+                  } else{
+                    print('!!location services not enabled');
+                  }
+                  if(await Geolocator.checkPermission() == LocationPermission.denied){
+                    print('Permission Denied, trying to get permission');
+                    await Geolocator.requestPermission();
+                  }
+                  Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+                  print(position.latitude);
+                  print(position.longitude);
+
+                  // -- MESSAGING SERVICE --
+                  messagingEnabled ? 
+                    MessagingService().sendAlertMessage(LatLng(position.latitude, position.longitude)) :
+                      null;
+                    // ignore: use_build_context_synchronously
+                    Constants().showSnackBarMessage(context, customMessage: messagingEnabled ? 'Local Emergency Services Alerted' : 'Messaging service is disabled');
+
+                  
+                } catch(e){
+                  print(e);
+                  // ignore: use_build_context_synchronously
+                  Constants().showSnackBarMessage(context, customMessage: 'Unable to get Location Permission');
+                }
+              },
               isDestructiveAction: true,
               child: const Text(
                 'Alert Now',
@@ -110,6 +109,8 @@ class DashboardPage extends StatelessWidget {
         ),
       );
     }
+
+
     return Consumer<GlobalProvider>(
       builder: (context, provider, child) => 
       Scaffold(
@@ -151,7 +152,7 @@ class DashboardPage extends StatelessWidget {
                     Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () => showEmergencyDialog(),
+                        onTap: () => showEmergencyDialog(provider.messagingServiceEnabled),
                         onLongPress: (){},
                         borderRadius: const BorderRadius.all(Radius.circular(40)),
                         child: Ink(

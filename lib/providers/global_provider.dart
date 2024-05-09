@@ -41,7 +41,6 @@ class GlobalProvider extends ChangeNotifier{
   }
 
   int? fireResponse;
-
   void setFireResponse(int res){
     fireResponse = res;
     notifyListeners();
@@ -51,6 +50,17 @@ class GlobalProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+  bool detectionStarted = false;
+
+  startDetection(){
+    detectionStarted = true;
+    notifyListeners();
+  }
+
+  endDetection(){
+    detectionStarted = false;
+    notifyListeners();
+  }
 
 
   //MAP PAGE
@@ -73,5 +83,20 @@ class GlobalProvider extends ChangeNotifier{
     animatedMapController.animateTo(dest: const LatLng(23.2032, 77.0844), zoom: 4.5);
     animatedMapController.animatedRotateReset();
     notifyListeners();
+  }
+
+  // messaging services
+  bool messagingServiceEnabled = false;
+  void enableMessagingService(){
+    if(!messagingServiceEnabled){
+      messagingServiceEnabled = true;
+      notifyListeners();
+    }
+  }
+  void disableMessagingService(){
+    if(messagingServiceEnabled){
+      messagingServiceEnabled = false;
+      notifyListeners();
+    }
   }
 }

@@ -24,6 +24,7 @@ class Services {
 
   detectFirePhoto(GlobalProvider provider) async{
     provider.removeFireResponse();
+    provider.startDetection();
     var uri = Uri.parse('http://jhankar.in:5005/predict');
     var request = http.MultipartRequest('POST', uri);
     print(provider.pickedFile!.name);
@@ -40,6 +41,7 @@ class Services {
       print(responseString);
       print(Constants.fireResponseDecode[int.parse(responseString)]);
       provider.setFireResponse(int.parse(responseString));
+      provider.endDetection();
     }
   }
 }

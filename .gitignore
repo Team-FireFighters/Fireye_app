@@ -41,3 +41,10 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+
+# Ignoring API Keys
+/lib/global/constants/api_keys.dart
+
+# Ignoring Phone Numbers
+/lib/global/constants/phone_numbers.dart

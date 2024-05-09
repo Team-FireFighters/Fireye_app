@@ -1,4 +1,6 @@
-import 'package:fireye/global/helpers/app_colors.dart';
+import 'dart:async';
+
+import 'package:fireye/global/constants/constants.dart';
 import 'package:fireye/providers/global_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:gap/gap.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +23,108 @@ class LocationPage extends StatefulWidget {
 class _LocationPageState extends State<LocationPage> with AutomaticKeepAliveClientMixin, TickerProviderStateMixin{
   
   late final AnimatedMapController _animatedMapController = AnimatedMapController(vsync: this,);
+  
+
+  Future<dynamic> locationName(LatLng coordinates) async{
+    await Future.delayed(const Duration(seconds: 1));
+    // var address = await Geocoder.local.findAddressesFromCoordinates(Coordinates(coordinates.latitude, coordinates.longitude));
+    var address = await GeocodingPlatform.instance!.placemarkFromCoordinates(coordinates.latitude, coordinates.longitude);
+    return address.first;
+  }
+
+  showClosestSatelliteImage(LatLng? pinPosition){
+    LatLng closestCoordinate = Constants().findNearestLatLong(pinPosition!);
+    String imageLink = Constants.satelliteImages[closestCoordinate]!;
+    showModalBottomSheet(
+      isScrollControlled: true,
+      backgroundColor: Colors.black,
+      elevation: 10,
+      barrierColor: Colors.white,
+      context: context,
+      builder: (context) => Container(
+        width: double.infinity,
+        height: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom - 10,
+        decoration: const BoxDecoration(
+          color: Color.fromARGB(255, 18, 18, 18),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(22.5))
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15,),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                const Gap(15),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Flexible(
+                      child: Text(
+                        'Closest Satellite Image',
+                        style: TextStyle(
+                          fontFamily: 'SFProBold',
+                          fontSize: 34,
+                        ),
+                        softWrap: true,
+                      ),
+                    ),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => Navigator.of(context).pop(),
+                        borderRadius: const BorderRadius.all(Radius.circular(100)),
+                        child: Ink(
+                          height: 45,
+                          width: 45,
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.all(Radius.circular(100))
+                          ),
+                          child: const Icon(
+                            CupertinoIcons.clear,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const Gap(15),
+                FutureBuilder(
+                  future: locationName(pinPosition),
+                  builder: (context, snapshot) {
+                    return 
+                    snapshot.hasData ? 
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                            ClipRRect(
+                            borderRadius: const BorderRadius.all(Radius.circular(15)),
+                            child: Image(
+                              image: AssetImage(
+                                imageLink,
+                              ),
+                            ),
+                          ),
+                          const Gap(15),
+                          Text(
+                            'Additional Information:\nCoordinates: (${pinPosition.latitude.toStringAsPrecision(3)}°N, ${pinPosition.longitude.toStringAsPrecision(3)}°E)\nLocality: ${snapshot.data.subLocality}\nCity: ${snapshot.data.locality}\nState: ${snapshot.data.administrativeArea}\nPostal Code: ${snapshot.data.postalCode}',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.5)
+                            ),
+                          )
+                        ],
+                      ) : Constants.satelliteImageLoading;
+                  },
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -98,9 +203,16 @@ class _LocationPageState extends State<LocationPage> with AutomaticKeepAliveClie
                               ),
                             ),
                           ),
-                          Icon(
-                            CupertinoIcons.info,
-                            color: Colors.black.withOpacity(0.7),
+                          GestureDetector(
+                            onTap: () { 
+                              LatLng nearest = Constants().findNearestLatLong(const LatLng(26.2006, 92.9376));
+                              print('assam\'s coordinates: ${nearest}\nNearest location:');
+                              print(Constants.satelliteImages[nearest]);
+                            },
+                            child: Icon(
+                              CupertinoIcons.info,
+                              color: Colors.black.withOpacity(0.7),
+                            ),
                           )
                         ],
                       ),
@@ -129,7 +241,7 @@ class _LocationPageState extends State<LocationPage> with AutomaticKeepAliveClie
                                 child: Material(
                                   color: Colors.transparent,
                                   child: InkWell(
-                                    onTap: (){},
+                                    onTap: () => showClosestSatelliteImage(provider.pinPosition),
                                     borderRadius: const BorderRadius.all(Radius.circular(100)),
                                     child: Ink(
                                       height: 45,
@@ -190,3 +302,5 @@ class _LocationPageState extends State<LocationPage> with AutomaticKeepAliveClie
   @override
   bool get wantKeepAlive => true;
 }
+
+

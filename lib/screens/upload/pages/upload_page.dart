@@ -19,7 +19,66 @@ class UploadPage extends StatefulWidget {
 }
 
 class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMixin{
-  
+  void toggleMessagingServiceDialog(GlobalProvider provider){
+    bool enabled = provider.messagingServiceEnabled;
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) =>  CupertinoAlertDialog(
+        title: const Text(
+          'Messaging Service',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content:  Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Gap(5),
+            Text(
+              !enabled? 
+              'Enable Messaging Service?' : 'Disable Messaging Service?',
+              style: const TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            const Gap(5),
+            Text(
+              'Note: This action will ${enabled?'disable':'enable'} emergency messaging service',
+              style: const TextStyle(
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () {
+              enabled ? 
+                provider.disableMessagingService() : 
+                  provider.enableMessagingService();
+              enabled = provider.messagingServiceEnabled;
+              Constants().showSnackBarMessage(
+                context, 
+                customMessage: enabled ? 
+                  'Messaging service is enabled' 
+                    : 'Messaging service is disabled',
+              );
+            },
+            isDestructiveAction: true,
+            child: Text(
+              enabled ? 'Disable' : 'Enable',
+              style: TextStyle(
+                color: enabled ? AppColors.redAlt : Colors.lightGreen
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     super.build(context); 
@@ -46,10 +105,10 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Gap(devicePadding.top + 5,),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Upload',
                         style: TextStyle(
                           fontFamily: 'SFProBold',
@@ -57,9 +116,20 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
                           fontSize: 34
                         ),
                       ),
-                      Icon(
-                        CupertinoIcons.info_circle,
-                        color: Color.fromARGB(180, 255, 255, 255),
+                      GestureDetector(
+                        onLongPress: () => toggleMessagingServiceDialog(provider),
+                        onDoubleTap: () =>
+                          Constants().showSnackBarMessage(
+                            context, 
+                            disablePop: true,
+                            customMessage: provider.messagingServiceEnabled ? 
+                              'Messaging service is enabled' 
+                                : 'Messaging service is disabled',
+                          ),
+                        child: const Icon(
+                          CupertinoIcons.info_circle,
+                          color: Color.fromARGB(180, 255, 255, 255),
+                        ),
                       )
                     ],
                   ),
@@ -127,7 +197,6 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
                       ),
                     ),
                   ),
-      
       
                   provider.pickedFile != null ? 
                     Column(
@@ -223,16 +292,28 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
                     ) : const SizedBox(),
                   const Gap(20),
                   provider.fireResponse != null ? 
-                  Text(
-                    Constants.fireResponseDecode[provider.fireResponse]!,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
-                      fontFamily: 'SFProBold'
-                    ),
-                  ) : const Center(
-                    child: CupertinoActivityIndicator(),
-                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Message from Server:',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.5)
+                        ),
+                      ),
+                      Text(
+                        Constants.fireResponseDecode[provider.fireResponse]!,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 30,
+                          fontFamily: 'SFProBold'
+                        ),
+                      ),
+                    ],
+                  ) : provider.detectionStarted ? 
+                      Constants.loadingWidget : 
+                        const SizedBox(),
                   const Gap(20),
                   const Gap(200)
                 ],
