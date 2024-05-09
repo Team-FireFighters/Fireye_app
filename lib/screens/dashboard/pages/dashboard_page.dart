@@ -125,15 +125,17 @@ class DashboardPage extends StatelessWidget {
         ),
         bottomNavigationBar: ClipRRect(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Container(
               alignment: Alignment.bottomCenter,
               height: devicePadding.bottom + 45,
-              // color: 
-              // provider.currentPage == 1 ?
-              //   Colors.black.withOpacity(0.1) : 
-              //     Colors.white.withOpacity(0.6),
-              color : Colors.black.withOpacity(0.1),
+              decoration: BoxDecoration(
+                color: 
+                  provider.currentPage == 0 ?
+                    Colors.black.withOpacity(0.1) : 
+                      Colors.white.withOpacity(1),
+                border: Border(top: BorderSide(color: Colors.black.withOpacity(0.1), width: 0.8))
+              ),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
                   15,

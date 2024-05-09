@@ -19,10 +19,9 @@ class NavBarButtons extends StatelessWidget {
             onPressed: onPressed,
             icon: Icon(
               icon,
-              // color: provider.currentPage == 0 ? 
-              //   Colors.white : 
-              //     Colors.black
-              color : Colors.white
+              color: provider.currentPage == 0 ? 
+                Colors.white : 
+                  Colors.black
               )
           ),
           AnimatedContainer(
@@ -33,10 +32,10 @@ class NavBarButtons extends StatelessWidget {
             height: isActive ? 5 : 0,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(10)),
-              // color: provider.currentPage == 0 ? 
-              //   Colors.white.withOpacity(0.75) : 
-              //     Colors.black.withOpacity(0.85)
-              color: Colors.white.withOpacity(0.75)
+              color: provider.currentPage == 0 ? 
+                Colors.white.withOpacity(0.75) : 
+                  Colors.black.withOpacity(0.85)
+              // color: Colors.white.withOpacity(0.75)
             ),
           )
         ],
