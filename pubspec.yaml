@@ -45,6 +45,8 @@ dependencies:
   geolocator: ^11.0.0
   geocoding: ^3.0.0
   http: ^1.2.1
+  flutter_launcher_icons: ^0.13.1
+  url_launcher: ^6.2.6
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +75,8 @@ flutter:
 
     - assets/
     - assets/satellite/
+    - assets/images/
+    - assets/icons/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -106,3 +110,9 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: "AppIcon"
+  image_path: "assets/icons/icon.jpg"
+  min_sdk_android: 21
+  remove_alpha_ios: true

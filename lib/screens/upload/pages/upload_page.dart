@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:fireye/global/constants/constants.dart';
 import 'package:fireye/global/helpers/app_colors.dart';
 import 'package:fireye/providers/global_provider.dart';
-import 'package:fireye/services/select_file.dart';
+import 'package:fireye/services/general_services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

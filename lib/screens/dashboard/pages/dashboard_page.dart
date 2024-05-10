@@ -3,6 +3,7 @@
 import 'dart:ui';
 
 import 'package:fireye/global/constants/constants.dart';
+import 'package:fireye/global/constants/phone_numbers.dart';
 import 'package:fireye/global/helpers/app_colors.dart';
 import 'package:fireye/providers/global_provider.dart';
 import 'package:fireye/screens/dashboard/widgets/navbar_buttons.dart';
@@ -16,6 +17,7 @@ import 'package:gap/gap.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -58,6 +60,13 @@ class DashboardPage extends StatelessWidget {
           ),
           actions: [
             CupertinoDialogAction(
+              onPressed: () {
+                try{
+                  launchUrlString("tel://${PhoneNumbers.personalPhoneNumber}");
+                } catch(e){
+                  Constants().showSnackBarMessage(context, customMessage: 'Unable to call ATM');
+                }
+                },
               child: Text(
                 'Call',
                 style: TextStyle(
