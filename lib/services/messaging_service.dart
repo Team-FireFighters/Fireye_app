@@ -7,14 +7,14 @@ import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 
 class MessagingService{
-  Future<void> sendAlertMessage(LatLng latLng) async{
+  Future<void> sendAlertMessage(LatLng latLng, String phNo) async{
     
     String twilioURL = 'https://api.twilio.com/2010-04-01/Accounts/${APIkeys.twilioAccSID}/Messages.json';
 
     Map<String, String> body = {
       'From' : PhoneNumbers.twilioPhoneNumber,
-      'To' : PhoneNumbers.personalPhoneNumber,
-      'Body' : "\n\nEmergency Service called @ (${latLng.latitude}°N, 77.0844°E)\n${Constants().googleMapsSearch(const LatLng(23.2032, 77.0844))}"
+      'To' : phNo,
+      'Body' : "\n\nEmergency Service called @ (${latLng.latitude}°N, ${latLng.longitude}°E)\n${Constants().googleMapsSearch(latLng)}"
     };
 
     final response = await http.post(

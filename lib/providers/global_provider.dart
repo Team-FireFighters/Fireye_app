@@ -1,4 +1,6 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:fireye/global/constants/constants.dart';
+import 'package:fireye/global/constants/phone_numbers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
@@ -98,5 +100,17 @@ class GlobalProvider extends ChangeNotifier{
       messagingServiceEnabled = false;
       notifyListeners();
     }
+  }
+
+
+  // switchin emergency number
+  String emergencyContact = PhoneNumbers.personalPhoneNumber0;
+  void switchToParth(){
+    emergencyContact = PhoneNumbers.personalPhoneNumber0;
+    notifyListeners();
+  }
+  void switchToRishit(){
+    emergencyContact = PhoneNumbers.personalPhoneNumber1;
+    notifyListeners();
   }
 }

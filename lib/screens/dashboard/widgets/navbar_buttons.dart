@@ -1,5 +1,6 @@
 import 'package:fireye/global/helpers/app_colors.dart';
 import 'package:fireye/providers/global_provider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -7,7 +8,7 @@ class NavBarButtons extends StatelessWidget {
   final bool isActive;
   final IconData icon;
   final VoidCallback? onPressed;
-  const NavBarButtons({super.key, required this.isActive, required this.icon, this.onPressed});
+  const NavBarButtons({super.key, required this.isActive, required this.icon, this.onPressed,});
 
   @override
   Widget build(BuildContext context) {

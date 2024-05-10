@@ -46,7 +46,7 @@ class Services {
   detectFireVideo(GlobalProvider provider) async{
     provider.removeFireResponse();
     provider.startDetection();
-    var uri = Uri.parse('http://jhankar.in:5005/predict');
+    var uri = Uri.parse('http://jhankar.in:5005/video');
     var request = http.MultipartRequest('POST', uri);
     print(provider.pickedFile!.name);
     request

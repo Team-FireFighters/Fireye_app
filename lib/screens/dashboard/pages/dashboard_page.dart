@@ -26,7 +26,64 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     EdgeInsets devicePadding = MediaQuery.of(context).padding;
-    void showEmergencyDialog(bool messagingEnabled){
+    void switchEmergencyPhoneNumber(GlobalProvider provider){
+      showCupertinoModalPopup(
+        context: context,
+        builder: (context) =>  CupertinoAlertDialog(
+          title: Text(
+            provider.emergencyContact == PhoneNumbers.personalPhoneNumber0? 
+                'Switch To Rishit' : 'Switch To Parth',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Gap(5),
+              Text(
+                'Switch Emergency Contact?' ,
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              Gap(5),
+              Text(
+                'Note: This action will change your emergency contact number.',
+                style: TextStyle(
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () {
+                provider.emergencyContact == PhoneNumbers.personalPhoneNumber0 ? 
+                  provider.switchToRishit() :
+                    provider.switchToParth();
+                String person = provider.emergencyContact == PhoneNumbers.personalPhoneNumber0 ? 'Parth' : 'Rishit';
+                Constants().showSnackBarMessage(
+                  context, 
+                  customMessage: 'Switched to $person!',
+                );
+              },
+              isDestructiveAction: true,
+              child: const Text(
+                'Confirm',
+                style: TextStyle(
+                  color: Colors.lightBlue
+                ),
+              ),
+            )
+          ],
+        ),
+      );
+    }
+    void showEmergencyDialog(bool messagingEnabled, String phNo){
       showCupertinoModalPopup(
         context: context,
         builder: (context) =>  CupertinoAlertDialog(
@@ -62,9 +119,9 @@ class DashboardPage extends StatelessWidget {
             CupertinoDialogAction(
               onPressed: () {
                 try{
-                  launchUrlString("tel://${PhoneNumbers.personalPhoneNumber}");
+                  launchUrlString("tel://$phNo");
                 } catch(e){
-                  Constants().showSnackBarMessage(context, customMessage: 'Unable to call ATM');
+                  Constants().showSnackBarMessage(context, customMessage: 'Unable to call ATM',);
                 }
                 },
               child: Text(
@@ -94,7 +151,7 @@ class DashboardPage extends StatelessWidget {
 
                   // -- MESSAGING SERVICE --
                   messagingEnabled ? 
-                    MessagingService().sendAlertMessage(LatLng(position.latitude, position.longitude)) :
+                    MessagingService().sendAlertMessage(LatLng(position.latitude, position.longitude), phNo) :
                       null;
                     // ignore: use_build_context_synchronously
                     Constants().showSnackBarMessage(context, customMessage: messagingEnabled ? 'Local Emergency Services Alerted' : 'Messaging service is disabled');
@@ -156,13 +213,17 @@ class DashboardPage extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    NavBarButtons(isActive: provider.currentPage == 0, icon: CupertinoIcons.cloud_upload, onPressed: () => provider.changeCurrentPage(0),),
+                    NavBarButtons(
+                      isActive: provider.currentPage == 0,
+                      icon: CupertinoIcons.cloud_upload,
+                      onPressed: () => provider.changeCurrentPage(0),
+                    ),
                     NavBarButtons(isActive: provider.currentPage == 1, icon: CupertinoIcons.map, onPressed: () => provider.changeCurrentPage(1),),
                     Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () => showEmergencyDialog(provider.messagingServiceEnabled),
-                        onLongPress: (){},
+                        onTap: () => showEmergencyDialog(provider.messagingServiceEnabled, provider.emergencyContact),
+                        onLongPress: () => switchEmergencyPhoneNumber(provider),
                         borderRadius: const BorderRadius.all(Radius.circular(40)),
                         child: Ink(
                           height: 45,
